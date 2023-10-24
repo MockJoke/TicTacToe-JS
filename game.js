@@ -27,6 +27,7 @@ const game = (xName, oName) => {
     };
 
     const computeStatus = () => {
+
         const winningCombos = [
             // rows
             [1, 2, 3],
@@ -44,22 +45,29 @@ const game = (xName, oName) => {
         ]
 
         // check for win - X or O
-        winningCombos.forEach(([i1, i2, i3]) => {
-            if (board[i1] === board[i2] && board[i2] === board[i3] && board[i3] === currPlayer) {
-                return `win-${currPlayer}`;
-            }
+        const isWin = winningCombos.some(([i1, i2, i3]) => {
+            return (board[i1] === board[i2] && board[i2] === board[i3] && board[i3] === currPlayer);
         });
 
+        if (isWin)
+            return `win-${currPlayer}`;
+
         // check for a draw
-        let areAllCellsTaken = false;
-        for (let i = 1; i <= 9; i++) {
-            if (board[i] !== "") {
-                areAllCellsTaken = true;
+        // let areAllCellsTaken = true;
+        // for (let i = 1; i <= 9; i++) {
+        //     if (board[i] === "") {
+        //         areAllCellsTaken = false;
+        //     }
+        // }
+        if (board[0] === "ongoing") {
+            let areAllCellsTaken = board.slice(1).every(cell => cell !== "");
+            if (areAllCellsTaken) {
+                return "draw";
             }
         }
 
-        if (areAllCellsTaken)
-            return "draw";
+        // if (areAllCellsTaken)
+        //     return "draw";
 
         return "ongoing";
     };
@@ -67,20 +75,20 @@ const game = (xName, oName) => {
     return (player, move) => {
         // Validate right player
         if (player !== currPlayer) {
-            return [false, `Not your turn. It's ${currPlayer}'s turn`]
+            return [false, currPlayer, `Not your turn. It's ${currPlayer}'s turn`];
         }
 
         // Validate right move
         if (!isValidMove(move)) {
-            return [false, `Invalid move, try again`]
+            return [false, currPlayer, `Invalid move, try again`];
         }
 
         board[move] = currPlayer;
         board[0] = computeStatus();
         currPlayer = nextPlayer[currPlayer]; 
 
-        return [true, board];
+        return [true, currPlayer, board];
     }
 };
 
-module.exports = {game};
+module.exports = { game };
